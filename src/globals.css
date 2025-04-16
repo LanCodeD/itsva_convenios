@@ -1,0 +1,32 @@
+/* globals.css */
+
+/* Estilos del contenedor emergente del calendario */
+.ant-picker-dropdown {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid #D1D5DB !important; /* Gris claro */
+  }
+  
+  /* Estilos de las celdas del calendario */
+  .ant-picker-cell-inner {
+    color: #1F2937 !important; /* Gris oscuro para el texto */
+    font-weight: 500;
+  }
+  
+  /* Estilos para el día seleccionado */
+  .ant-picker-cell-selected .ant-picker-cell-inner {
+    background-color: #F59E0B !important; /* Color dorado */
+    color: white !important; /* Texto blanco */
+  }
+  
+  /* Estilos para el botón de hoy y el footer */
+  .ant-picker-today-btn, .ant-picker-footer {
+    color: #F59E0B !important; /* Color dorado para el botón "Hoy" */
+  }
+  
+  /* Estilos del hover para los días */
+  .ant-picker-cell:hover .ant-picker-cell-inner {
+    background-color: #FCD34D !important; /* Un dorado más claro al pasar el cursor */
+    color: white !important;
+  }
+  

@@ -64,7 +64,7 @@ const SubirConvenioForm: React.FC<SubirConvenioFormProps> = ({
       }
     }
   }, [estadoSecciones]);
-  console.log("este es el estado de las secciones", estadoSecciones);
+  //console.log("este es el estado de las secciones", estadoSecciones);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

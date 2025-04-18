@@ -108,20 +108,20 @@ const ConveniosSolicitados = () => {
             >
               <p className="text-lg text-gray-900">
                 <strong className="font-semibold text-textHeader">
-                  Fecha de Creación:
+                  Fecha de Creación: 
                 </strong>
-                {formatDatCre(solicitud.fecha_creacion)}
+                 {formatDatCre(solicitud.fecha_creacion)}
               </p>
               <p className="text-lg text-gray-900">
                 <strong className="font-semibold text-textHeader">
                   Fecha de Finalización:
                 </strong>
-                {solicitud.fecha_finalizacion ? (
-                  formatDate(solicitud.fecha_finalizacion)
+                { solicitud.fecha_finalizacion ? (
+                  formatDate( solicitud.fecha_finalizacion)
                 ) : (
-                  <span className="text-red-600">
+                   <span className="text-red-600">
                     Aún no se ha finalizado la Solicitud
-                  </span>
+                   </span>
                 )}
               </p>
 

@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { connectDB } from '@/libs/database';
+import { NextResponse } from "next/server";
+import { connectDB } from "@/libs/database";
 import { authOptions } from "@/libs/authOptions";
 import { getServerSession } from "next-auth";
 import cloudinary from "@/libs/cloudinary";
@@ -66,18 +66,18 @@ export async function GET(
     );
     console.log("contenido del GET:", rows);
 
-/*     if (!rows || rows.length === 0) {
+    /*     if (!rows || rows.length === 0) {
       return NextResponse.json(
         { message: "No se encontró el convenio para este usuario y solicitud" },
         { status: 404 }
       );
     } */
 
-      if (!rows || rows.length === 0) {
-        return NextResponse.json(
-          { message: "Contenido de 0, puede subir archivo" },
-        );
-      }
+    if (!rows || rows.length === 0) {
+      return NextResponse.json({
+        message: "Contenido de 0, puede subir archivo",
+      });
+    }
 
     return NextResponse.json(rows[0]); // Devuelve la primera fila encontrada
   } catch (error: any) {
@@ -92,21 +92,20 @@ export async function GET(
 }
 
 export async function PUT(
-  request: Request, 
+  request: Request,
   { params }: { params: { id_solicitud: string } }
 ) {
   const connection = await connectDB();
-
   try {
+    // 1) Autenticación
     const session = await getServerSession(authOptions);
-
     if (!session) {
       return NextResponse.json({ message: "No autorizado" }, { status: 401 });
     }
+    const usuarioId = session.user!.id;
 
-    const usuarioId = session.user?.id;
+    // 2) Desestructuramos id_solicitud
     const { id_solicitud } = params;
-
     if (!id_solicitud) {
       return NextResponse.json(
         { message: "ID de solicitud no proporcionado" },
@@ -114,91 +113,110 @@ export async function PUT(
       );
     }
 
-    const { convenio_subir } = await request.json();
+    // 3) Iniciar transacción
+    await connection.beginTransaction();
 
-    if (!convenio_subir) {
-      return NextResponse.json(
-        { message: "No se ha proporcionado la URL del archivo" },
-        { status: 400 }
-      );
-    }
-
-    // Recuperar el id_subir_convenio a partir del id_solicitudes
-    const [solicitudRows]: [any[], any] = await connection.execute(
-      "SELECT subir_convenio_id, estado_secciones FROM solicitudes_convenios WHERE id_solicitudes = ? AND usuario_id = ?",
+    // 4) Recuperar subir_convenio_id y estado_secciones
+    const [solicitudRows]: any[] = await connection.execute(
+      `SELECT subir_convenio_id, estado_secciones
+         FROM solicitudes_convenios
+        WHERE id_solicitudes = ?
+          AND usuario_id = ?`,
       [id_solicitud, usuarioId]
     );
-
-    if (!solicitudRows || solicitudRows.length === 0) {
+    if (!solicitudRows.length) {
+      await connection.rollback();
       return NextResponse.json(
         { message: "No se encontró la solicitud para este usuario" },
         { status: 404 }
       );
     }
+    const { subir_convenio_id, estado_secciones: rawSecciones } =
+      solicitudRows[0];
+    const estadoSecciones = rawSecciones ? JSON.parse(rawSecciones) : {};
 
-    const id_subir_convenio = solicitudRows[0].subir_convenio_id;
-    const estadoSecciones = solicitudRows[0].estado_secciones
-      ? JSON.parse(solicitudRows[0].estado_secciones)
-      : {};
-
-    // Actualizar los campos en la tabla 'subir_convenio'
+    // 5) Actualizar subir_convenio
+    const { convenio_subir } = await request.json();
+    if (!convenio_subir) {
+      await connection.rollback();
+      return NextResponse.json(
+        { message: "No se ha proporcionado la URL del archivo" },
+        { status: 400 }
+      );
+    }
     await connection.execute(
-      "UPDATE subir_convenio SET convenio_subir = ?, fecha_subida = NOW() WHERE id_subir_convenio = ?",
-      [convenio_subir, id_subir_convenio]
+      `UPDATE subir_convenio
+          SET convenio_subir = ?, 
+              fecha_subida   = NOW()
+        WHERE id_subir_convenio = ?`,
+      [convenio_subir, subir_convenio_id]
     );
 
-    // Actualizar la sección 'subir_convenio' a 'completado' y desbloquear la siguiente sección
+    // 6) Actualizar estado_secciones
     estadoSecciones.subir_convenio = "completado";
     estadoSecciones.protocolo_firmas = "completado";
-
-    // Actualizar la tabla 'solicitudes_convenios' con el nuevo estado de las secciones
     await connection.execute(
-      "UPDATE solicitudes_convenios SET estado_secciones = ? WHERE id_solicitudes = ?",
+      `UPDATE solicitudes_convenios
+          SET estado_secciones = ?
+        WHERE id_solicitudes = ?`,
       [JSON.stringify(estadoSecciones), id_solicitud]
     );
 
-     // Notificar al administrador que hay una nueva solicitud completa
-     const [adminResult]: [any[], any] = await connection.execute(
-      `SELECT id_usuario FROM usuario WHERE rol = 'administrador' LIMIT 1`
+    // 7) Insertar notificación
+    const [adminRows]: any[] = await connection.execute(
+      `SELECT id_usuario
+         FROM usuario
+        WHERE rol = 'administrador'
+        LIMIT 1`
     );
 
-    const adminId = adminResult[0]?.id_usuario;
-    console.log("Esto es el adminID", adminId)
+    // 7.1) Obtener nombre del usuario solicitante
+    const [usuarioData]: any[] = await connection.execute(
+      `SELECT nombre FROM usuario WHERE id_usuario = ?`,
+      [usuarioId]
+    );
+    const nombreUsuario = usuarioData[0]?.nombre || "Un usuario";
 
+    const adminId = adminRows[0]?.id_usuario;
+    console.log("Esto es el adminID", adminId);
     if (adminId) {
-      try {
-        await connection.execute(
-          `INSERT INTO notificaciones (usuario_id, solicitud_id, mensaje, tipo_notificacion, leido) VALUES (?, ?, ?, ?, ?)`,
-          [
-            adminId, // ID del administrador que recibirá la notificación
-            id_solicitud, // ID de la solicitud relacionada
-            "Secciones corregidas, lista para revisión.", // Mensaje personalizado
-            "Solicitud Corregida", // Tipo de notificación
-            false, // No leído
-          ]
-        );
-        console.log("Notificación creada correctamente.");
-      } catch (error: any) {
-        console.error("Error al crear la notificación: ",error.message || error);
-      }
+      const mensaje = `${nombreUsuario} ha corregido la sección de Subida de Archivos. Lista para revisión.`;
+    
+      const [notifResult]: any = await connection.execute(
+        `INSERT INTO notificaciones
+           (usuario_id, solicitud_id, mensaje, tipo_notificacion, leido)
+         VALUES (?, ?, ?, ?, ?)`,
+        [
+          adminId,
+          id_solicitud,
+          mensaje,
+          "Solicitud Completa",
+          false
+        ]
+      );
+      console.log("Notificación creada, affectedRows:", notifResult.affectedRows);
     } else {
-      console.log("No se encontró ningún administrador.");
+      console.warn("No se encontró ningún administrador.");
     }
-   
+
+    // 8) Commit
     await connection.commit();
 
     return NextResponse.json(
       {
         message:
-          "Subida de convenios guardado con éxito y notificación enviada al administrador",
+          "Subida de convenios guardada con éxito y notificación enviada al administrador",
       },
-      { status: 201 }
+      { status: 200 }
     );
   } catch (error: any) {
     await connection.rollback();
     console.error("Error al actualizar convenio:", error.message || error);
     return NextResponse.json(
-      { message: "Error al actualizar el archivo", error: error.message || error },
+      {
+        message: "Error al actualizar el archivo",
+        error: error.message || error,
+      },
       { status: 500 }
     );
   } finally {

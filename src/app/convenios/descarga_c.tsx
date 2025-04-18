@@ -17,7 +17,7 @@ function DescargaConvenio() {
     // Función para obtener los documentos desde la API
     const fetchDocumentos = async () => {
       try {
-        const response = await axios.get("/api/descargar_c"); // Ajusta la ruta según tu configuración
+        const response = await axios.get("/api/descarga_c"); // Ajusta la ruta según tu configuración
         setDocumentos(response.data.documentos);
       } catch (err) {
         setError("Error al cargar los documentos.");

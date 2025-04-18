@@ -15,13 +15,14 @@ export async function POST(request: Request) {
 
     const usuarioId = session.user?.id;
     const { nombre_solicitante, correo_solicitar, telefono, clave_matricula } = await request.json();
+    const estadoValidacionInicial = "pendiente";
 
     await connection.beginTransaction();
 
     // Insertar la nueva solicitud en la tabla 'solicitar'
     const [solicitarResult]: any = await connection.execute(
-      "INSERT INTO solicitar (nombre_solicitante, correo_solicitar, telefono, clave_matricula, usuario_id) VALUES (?, ?, ?, ?, ?)",
-      [nombre_solicitante, correo_solicitar, telefono, clave_matricula, usuarioId]
+      "INSERT INTO solicitar (nombre_solicitante, correo_solicitar, telefono, clave_matricula, usuario_id, estado_validacion) VALUES (?, ?, ?, ?, ?, ?)",
+      [nombre_solicitante, correo_solicitar, telefono, clave_matricula, usuarioId, estadoValidacionInicial]
     );
 
     const solicitarId = solicitarResult.insertId;
@@ -43,18 +44,9 @@ export async function POST(request: Request) {
 
     const solicitudId = existingSolicitud[0].id_solicitudes;
     const estadoSecciones = existingSolicitud[0].estado_secciones ? JSON.parse(existingSolicitud[0].estado_secciones) : {};
-/*     const estadoSecciones = existingSolicitud[0].estado_secciones
-  ? JSON.parse(existingSolicitud[0].estado_secciones)
-  : {
-      solicitar: "pendiente",
-      subir_convenio: "pendiente",
-      protocolo_firmas: "pendiente",
-    }; */
 
     console.log("Este es el estado de la seccion ",estadoSecciones);
    // console.log("Valor actual de estado_secciones:", existingSolicitud[0].estado_secciones);
-
-
 
     // Actualizamos la primera sección (solicitar) a 'completado' y desbloqueamos la siguiente (subir_convenio)
     estadoSecciones.solicitar = 'completado';

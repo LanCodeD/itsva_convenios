@@ -65,9 +65,7 @@ export async function PUT(
       : {};
 
     // Construir la query de actualización dependiendo de los datos recibidos
-    const fieldsToUpdate: { [key: string]: string } = {};
-
-    // Agregar campos a actualizar si fueron enviados
+    const fieldsToUpdate: { [key: string]: any } = {};
     if (estado_validacion !== undefined) {
       fieldsToUpdate["estado_validacion"] = estado_validacion;
     }
@@ -75,7 +73,9 @@ export async function PUT(
       fieldsToUpdate["requiere_protocolo"] = requiere_protocolo;
     }
     if (fecha_seleccionada !== undefined) {
-      fieldsToUpdate["fecha_seleccionada"] = fecha_seleccionada;
+      // traduce cadena vacía a null para que MySQL lo acepte
+      fieldsToUpdate["fecha_seleccionada"] =
+        fecha_seleccionada === "" ? null : fecha_seleccionada;
     }
 
     // Actualizar estado_secciones para marcar la sección como "activo" si los datos están vacíos
@@ -91,14 +91,11 @@ export async function PUT(
 
     // Verificar si hay campos para actualizar en la tabla protocolo_firmas
     if (Object.keys(fieldsToUpdate).length > 0) {
-      // Generar la parte "SET" de la query dinámica
       const setClause = Object.keys(fieldsToUpdate)
-        .map((field) => `${field} = ?`)
+        .map((f) => `${f} = ?`)
         .join(", ");
-    
       const values = Object.values(fieldsToUpdate);
-
-      // Ejecutar la query de actualización en protocolo_firmas
+    
       await connection.execute(
         `UPDATE protocolo_firmas SET ${setClause} WHERE id_protocolo_firmas = ?`,
         [...values, params.id_protocolo_firmas]

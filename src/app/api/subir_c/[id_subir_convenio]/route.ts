@@ -82,8 +82,7 @@ export async function PUT(
       ? JSON.parse(solicitud.estado_secciones)
       : {};
 
-    const fieldsToUpdate: { [key: string]: string } = {};
-
+    const fieldsToUpdate: { [key: string]: any } = {};
     if (estado_validacion !== undefined) {
       fieldsToUpdate["estado_validacion"] = estado_validacion;
     }
@@ -91,23 +90,25 @@ export async function PUT(
       fieldsToUpdate["convenio_subir"] = convenio_subir;
     }
     if (fecha_subida !== undefined) {
-      fieldsToUpdate["fecha_subida"] = fecha_subida;
+      // traduce cadena vacía a null:
+      fieldsToUpdate["fecha_subida"] =
+        fecha_subida === "" ? null : fecha_subida;
     }
 
+    // si sólo estás “limpiando” datos y quieres además reactivar la sección:
     if (convenio_subir === "" || fecha_subida === "") {
-      estadoSecciones.subir_convenio = "activo"; // Cambiamos el estado a "activo"
-
+      estadoSecciones.subir_convenio = "activo";
       await connection.execute(
         "UPDATE solicitudes_convenios SET estado_secciones = ? WHERE id_solicitudes = ?",
         [JSON.stringify(estadoSecciones), solicitudId]
       );
     }
 
+    // actualizar la tabla subir_convenio con los campos resultantes:
     if (Object.keys(fieldsToUpdate).length > 0) {
       const setClause = Object.keys(fieldsToUpdate)
-        .map((field) => `${field} = ?`)
+        .map((f) => `${f} = ?`)
         .join(", ");
-
       const values = Object.values(fieldsToUpdate);
 
       await connection.execute(

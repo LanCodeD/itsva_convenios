@@ -36,7 +36,7 @@ const GestionConvenios = () => {
       const fetchSolicitudes = async () => {
         try {
           const response = await axios.get(
-            "/api/solicitudes_convenios/admiAll"
+            "/api/solicitudes_convenios/adminAll"
           ); // Asegúrate de que este sea el path correcto
           const data = await response.data;
           setSolicitudes(data);

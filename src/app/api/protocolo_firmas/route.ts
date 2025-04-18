@@ -15,16 +15,18 @@ export async function POST(request: Request) {
 
     const usuarioId = session.user?.id;
     const { requiere_protocolo, fecha_seleccionada } = await request.json();
+    const estadoValidacionInicial = "pendiente";
 
     await connection.beginTransaction();
 
     // Inserta el protocolo en la tabla protocolo_firmas
     const [protocoloResult]: any = await connection.execute(
-      "INSERT INTO protocolo_firmas (usuario_id, requiere_protocolo, fecha_seleccionada) VALUES (?, ?, ?)",
+      "INSERT INTO protocolo_firmas (usuario_id, requiere_protocolo, fecha_seleccionada, estado_validacion) VALUES (?, ?, ?, ?)",
       [
         usuarioId,
         requiere_protocolo === "sí" ? 1 : 0,
         requiere_protocolo === "sí" ? fecha_seleccionada : null,
+        estadoValidacionInicial
       ]
     );
 

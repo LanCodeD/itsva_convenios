@@ -31,11 +31,12 @@ export async function POST(request: Request) {
 
     await connection.beginTransaction();
     console.log("Comenzando la transacción en la base de datos");
+    const estadoValidacionInicial = "pendiente";
 
     // Insertar el nuevo convenio en la tabla `subir_convenio`
     const [subirConvenioResult]: any = await connection.execute(
-      "INSERT INTO subir_convenio (convenio_subir, fecha_subida, estado_convenio_id, usuario_id) VALUES (?, ?, ?, ?)",
-      [convenio_subir, fechaSubida, estadoConvenioId, usuarioId]
+      "INSERT INTO subir_convenio (convenio_subir, fecha_subida, estado_convenio_id, usuario_id, estado_validacion) VALUES (?, ?, ?, ?, ?)",
+      [convenio_subir, fechaSubida, estadoConvenioId, usuarioId, estadoValidacionInicial]
     );
 
     const subirConvenioId = subirConvenioResult.insertId;

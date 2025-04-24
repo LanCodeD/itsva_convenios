@@ -27,6 +27,7 @@
     "mysql2": "^3.11.0",
     "next": "14.2.5",
     "next-auth": "^4.24.7",
+    "next-connect": "^1.0.0",
     "react": "^18",
     "react-calendar": "^5.0.0",
     "react-chartjs-2": "^5.2.0",
@@ -37,7 +38,8 @@
     "recharts": "^2.13.0",
     "swr": "^2.2.5",
     "tailwind-merge": "^2.5.2",
-    "typed.js": "^2.1.0"
+    "typed.js": "^2.1.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -46,6 +48,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/uuid": "^10.0.0",
     "eslint": "^8",
     "eslint-config-next": "^0.2.4",
     "postcss": "^8",

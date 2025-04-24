@@ -1,9 +1,13 @@
 // /api/auth/perfil/route.ts
 import { NextResponse } from "next/server";
 import { connectDB } from "@/libs/database";
-import cloudinary from "@/libs/cloudinary";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/libs/authOptions";
+import fs from "fs/promises";
+import path from "path";
+
+
+
 
 export async function GET(request: Request) {
   const connection = await connectDB();
@@ -36,74 +40,88 @@ export async function GET(request: Request) {
   }
 }
 
+export const config = {
+  api: {
+    bodyParser: false, // Necesario para formData
+  },
+};
+
 export async function PUT(request: Request) {
   const connection = await connectDB();
   try {
+    // 1) Autenticación
     const session = await getServerSession(authOptions);
-
     if (!session) {
       return NextResponse.json({ message: "No autenticado" }, { status: 401 });
     }
-
     const idUsuario = session.user.id;
+
+    // 2) Parsear formData
     const formData = await request.formData();
+    const informacion      = formData.get("informacion")?.toString()      || null;
+    const ciudad           = formData.get("ciudad")?.toString()           || null;
+    const clave_o_matricula= formData.get("clave_o_matricula")?.toString()|| null;
+    const numero_telefonico= formData.get("numero_telefonico")?.toString()|| null;
+    const nuevaFotoUrl     = formData.get("foto_perfil")?.toString()      || null;
 
-    const informacion = formData.get("informacion")?.toString() || null;
-    const ciudad = formData.get("ciudad")?.toString() || null;
-    const clave_o_matricula = formData.get("clave_o_matricula")?.toString() || null;
-    const numero_telefonico = formData.get("numero_telefonico")?.toString() || null;
-    let fotoPerfilUrl = null;
-
-    // Verificar si hay una URL de imagen pasada desde el cliente
-    if (formData.has("foto_perfil")) {
-      const fotoPerfilValue = formData.get("foto_perfil");
-      if (fotoPerfilValue instanceof Blob) {
-        const fotoBuffer = Buffer.from(await fotoPerfilValue.arrayBuffer());
-        fotoPerfilUrl = await new Promise((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
-            { folder: "perfiles" },
-            (error, result) => {
-              if (error) {
-                reject(new Error("Error al subir la imagen a Cloudinary"));
-              } else {
-                resolve(result?.secure_url || null);
-              }
-            }
-          );
-          uploadStream.end(fotoBuffer);
+    // 3) Si vienen nuevos datos de foto, borramos la antigua
+    if (nuevaFotoUrl) {
+      const [rows]: any[] = await connection.execute(
+        `SELECT foto_perfil 
+           FROM perfil 
+          WHERE id_perfil = (
+            SELECT perfil_id 
+              FROM usuario 
+             WHERE id_usuario = ?
+          )`,
+        [idUsuario]
+      );
+      const viejaFotoUrl = rows[0]?.foto_perfil as string | null;
+      if (viejaFotoUrl && viejaFotoUrl !== nuevaFotoUrl) {
+        const filePath = path.join(
+          process.cwd(),
+          "public",
+          viejaFotoUrl.replace(/^\//, "")
+        );
+        await fs.unlink(filePath).catch((e: any) => {
+          if (e.code !== "ENOENT") console.error("Error borrando foto vieja:", e);
         });
-      } else if (typeof fotoPerfilValue === "string") {
-        fotoPerfilUrl = fotoPerfilValue; // Si es una URL enviada directamente desde el cliente
       }
     }
-    
 
+    // 4) Construir y ejecutar el UPDATE
     const updateQuery = `
-      UPDATE perfil 
-      SET 
-        informacion = COALESCE(?, informacion),
-        ciudad = COALESCE(?, ciudad),
-        clave_o_matricula = COALESCE(?, clave_o_matricula),
-        numero_telefonico = COALESCE(?, numero_telefonico),
-        foto_perfil = COALESCE(?, foto_perfil)
-      WHERE id_perfil = (SELECT perfil_id FROM usuario WHERE id_usuario = ?)
+      UPDATE perfil
+         SET 
+           informacion       = COALESCE(?, informacion),
+           ciudad            = COALESCE(?, ciudad),
+           clave_o_matricula = COALESCE(?, clave_o_matricula),
+           numero_telefonico = COALESCE(?, numero_telefonico),
+           foto_perfil       = COALESCE(?, foto_perfil)
+       WHERE id_perfil = (
+         SELECT perfil_id FROM usuario WHERE id_usuario = ?
+       )
     `;
-
     const updateValues = [
       informacion,
       ciudad,
       clave_o_matricula,
       numero_telefonico,
-      fotoPerfilUrl,
+      nuevaFotoUrl,
       idUsuario,
     ];
-
     await connection.execute(updateQuery, updateValues);
 
-    return NextResponse.json({ message: "Perfil actualizado con éxito" }, { status: 200 });
-  } catch (error) {
+    return NextResponse.json(
+      { message: "Perfil actualizado con éxito" },
+      { status: 200 }
+    );
+  } catch (error: any) {
     console.error("Error al actualizar el perfil:", error);
-    return NextResponse.json({ message: "Error al actualizar el perfil" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Error al actualizar el perfil" },
+      { status: 500 }
+    );
   } finally {
     connection.release();
   }

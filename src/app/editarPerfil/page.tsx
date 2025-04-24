@@ -29,6 +29,7 @@ const EditarPerfil = () => {
   const [fotoArchivo, setFotoArchivo] = useState<File | null>(null); // Archivo de la foto
   const [uploading, setUploading] = useState<boolean>(false); // Estado de carga
   const [progress, setProgress] = useState<number>(0); // Estado de progreso
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,60 +52,91 @@ const EditarPerfil = () => {
     }
   }, [session, status, router]);
 
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!session?.user || !perfil) return;
 
-    if (session && session.user && perfil) {
+    // Reseteamos error
+    setError(null);
+
+    let fotoUrl = perfil.foto_perfil;
+
+    // 1) Si hay archivo nuevo, subimos la imagen
+    if (fotoArchivo) {
+      // Validación previa en cliente
+      if (fotoArchivo.size > MAX_FILE_SIZE) {
+        setError("Error con la subida de imagen: máximo 5 MB");
+        return;
+      }
+
+      setUploading(true);
+      setProgress(0);
+
+      const formData = new FormData();
+      formData.append("file", fotoArchivo);
+
       try {
-        let fotoUrl = perfil.foto_perfil;
-
-        if (fotoArchivo) {
-          setUploading(true);
-
-          const formData = new FormData();
-          formData.append("file", fotoArchivo);
-          formData.append("upload_preset", "fotoperfil");
-          formData.append("cloud_name", "dce75mcva");
-
-          const response = await axios.post(
-            `https://api.cloudinary.com/v1_1/dce75mcva/image/upload`,
-            formData,
-            {
-              onUploadProgress: (progressEvent) => {
-                const total = progressEvent.total || 1;
-                const percent = Math.round((progressEvent.loaded / total) * 100);
-                setProgress(percent); // Actualizar progreso
-              },
-            }
-          );
-
-          fotoUrl = response.data.secure_url;
-          setUploading(false);
-          setProgress(0); // Resetear progreso
-        }
-
-        const perfilFormData = new FormData();
-        perfilFormData.append("informacion", perfil.informacion || "");
-        perfilFormData.append("ciudad", perfil.ciudad || "");
-        perfilFormData.append("clave_o_matricula", perfil.clave_o_matricula || "");
-        perfilFormData.append("numero_telefonico", perfil.numero_telefonico || "");
-        perfilFormData.append("foto_perfil", fotoUrl || "");
-
-        await axios.put(`/api/auth/perfil`, perfilFormData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-
-        router.push("/profile");
-      } catch (error) {
-        console.error(error);
+        const uploadRes = await axios.post<{ url: string }>(
+          "/api/serverPerfil",
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            onUploadProgress: (evt) => {
+              const total = evt.total ?? 1;
+              const pct = Math.round((evt.loaded * 100) / total);
+              setProgress(pct);
+            },
+          }
+        );
+        fotoUrl = uploadRes.data.url;
         setUploading(false);
-        setError("No se pudo actualizar el perfil. Inténtalo de nuevo.");
+      } catch (err: any) {
+        console.error("Error al subir imagen:", err);
+        // Si el servidor respondió con 413 Payload Too Large
+        if (err.response?.status === 413) {
+          setError("Error con la subida de imagen: máximo 5 MB");
+        } else {
+          setError("Error respuesta del servidor al subir imagen");
+        }
+        setUploading(false);
+        return;
       }
     }
-  };
 
+    // 2) Subir el resto del perfil
+    try {
+      const perfilFormData = new FormData();
+      perfilFormData.append("informacion", perfil.informacion || "");
+      perfilFormData.append("ciudad", perfil.ciudad || "");
+      perfilFormData.append(
+        "clave_o_matricula",
+        perfil.clave_o_matricula || ""
+      );
+      perfilFormData.append(
+        "numero_telefonico",
+        perfil.numero_telefonico || ""
+      );
+      perfilFormData.append("foto_perfil", fotoUrl || "");
+
+      await axios.put("/api/auth/perfil", perfilFormData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      // En lugar de redirigir inmediatamente:
+      setSuccessMessage(
+        "Datos actualizados correctamente, redirigiendo al perfil..."
+      );
+      // Espera 1.5s para que el usuario vea el mensaje
+      setTimeout(() => {
+        router.push("/profile");
+      }, 2500);
+    } catch (err: any) {
+      console.error("Error al actualizar perfil:", err);
+      setError("Error respuesta del servidor al guardar perfil");
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -118,11 +150,6 @@ const EditarPerfil = () => {
       setFotoArchivo(e.target.files[0]);
     }
   };
-
-
-  if (error) {
-    return <p>{error}</p>;
-  }
 
   if (status === "loading") {
     return <p>Cargando...</p>;
@@ -143,11 +170,15 @@ const EditarPerfil = () => {
             alt="Foto de perfil"
             width={200}
             height={200}
-            className="rounded-full object-cover mb-4 shadow-md hover:scale-105 transition-transform"
+            priority
+            className="rounded-full object-cover mb-4 shadow-md hover:scale-105 transition-transform w-auto h-auto"
           />
         )}
-
       </div>
+
+      {successMessage && (
+        <p className="text-textDorado text-center mb-4 mt-4 text-xl font-semibold">{successMessage}</p>
+      )}
 
       <form
         onSubmit={handleSubmit}
@@ -239,25 +270,23 @@ const EditarPerfil = () => {
             Escoge Una Foto De Perfil
           </label>
           <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="mt-1 block w-3/4 text-sm text-gray-500 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-        />
-        {uploading && (
-          <div className="mt-2 w-3/4 bg-gray-200 rounded-full">
-            <div
-              className="bg-indigo-600 text-xs leading-none py-1 text-center text-white rounded-full"
-              style={{ width: `${progress}%` }}
-            >
-              {progress}%
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="mt-1 block w-3/4 text-sm text-gray-500 file:py-2 file:px-4 file:rounded-lg file:border-0 file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+          />
+          {uploading && (
+            <div className="mt-2 w-3/4 bg-gray-200 rounded-full">
+              <div
+                className="bg-indigo-600 text-xs leading-none py-1 text-center text-white rounded-full"
+                style={{ width: `${progress}%` }}
+              >
+                {progress}%
+              </div>
             </div>
-          </div>
-        )}
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+          )}
+          {error && <p className="text-red-500 mb-4">{error}</p>}
         </div>
-
-        
 
         {/* Botón Guardar Cambios */}
         <div className="md:col-span-2 flex justify-center mt-4">
@@ -275,4 +304,3 @@ const EditarPerfil = () => {
 };
 
 export default EditarPerfil;
-

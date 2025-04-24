@@ -74,75 +74,60 @@ const SubirConvenioForm: React.FC<SubirConvenioFormProps> = ({
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("Estamos en la rama almacenamiento local")
     if (isFormLocked || hasUploaded || !file) return;
-
+  
     const formData = new FormData();
-    const uniqueId = Date.now(); // Genera un ID único usando el timestamp actual
-      formData.append("file", file);
-      formData.append("upload_preset", "lv8srnhn");
-      formData.append("public_id", `${file.name.split('.').slice(0, -1).join('.')}-${uniqueId}`);
-
+    formData.append("file", file);
+  
     try {
-      const cloudinaryResponse = await axios.post(
-        "https://api.cloudinary.com/v1_1/dce75mcva/upload", //direcciónde mi usuario de la carpeta en cloudinary
+      setUploadStatus("Subiendo archivo...");
+      const uploadRes = await axios.post<{ url: string }>(
+        "/api/serverL",
         formData,
         {
-          onUploadProgress: (progressEvent) => {
-            const progress = progressEvent.total
-              ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          headers: { "Content-Type": "multipart/form-data" },
+          onUploadProgress: (evt) => {
+            const total = evt.total ?? 0;
+            const percent = total
+              ? Math.round((evt.loaded * 100) / total)
               : 0;
-
-            setUploadStatus(`Subiendo: ${progress}%`);
+            setUploadStatus(`Subiendo: ${percent}%`);
           },
         }
       );
-      
-      const fileUrl = cloudinaryResponse.data.secure_url;
-      //console.log("Datos enviados al backend:", { convenio_subir: fileUrl, id_solicitud });
-      //console.log("ID de solicitud:", id_solicitud);
-      //console.log("URL del archivo a enviar:", fileUrl);
-     
+  
+      const fileUrl = uploadRes.data.url; // "/Itsva/Convenios/uuid.ext"
       let response;
-      data
       if (estadoValidacion === "Rechazado") {
-        // Si el estado es "Rechazado", hacemos un PUT
-        response = await axios.put(`/api/subir_c/nuevoc/${id_solicitud}`,
-          { convenio_subir: fileUrl },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
+        response = await axios.put(
+          `/api/subir_c/nuevoc/${id_solicitud}`,
+          { convenio_subir: fileUrl }
         );
       } else {
-        // Si es una nueva subida, hacemos un POST
         response = await axios.post(
           "/api/subir_c",
-          { convenio_subir: fileUrl, id_solicitud },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
+          { convenio_subir: fileUrl, id_solicitud }
         );
       }
-
-
-      if (response.status === 200 || response.status === 201) {
+  
+      if ([200, 201].includes(response.status)) {
         setUploadStatus("Archivo subido exitosamente.");
         setIconName("lucide:file-check");
         setHasUploaded(true);
         onSubmit();
       } else {
-        setUploadStatus("Error al guardar el archivo.");
-        setIconName("mdi:alert-circle-outline");
+        throw new Error("Guardado fallido - ERROR");
       }
     } catch (error) {
       console.error("Error al subir convenio:", error);
-      setUploadStatus("Error en la solicitud (máx. 2MB).");
+      setUploadStatus("Error durante la subida (máx. 5 MB).");
       setIconName("mdi:alert-circle-outline");
     }
   };
+  
+  
+  
 
   useEffect(() => {
     const checkUploadedFile = async () => {

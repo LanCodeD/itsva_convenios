@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Itsva Convenios
 
-## Getting Started
+Este repositorio contiene un sistema de convenios desarrollado con Next.js, React y MySQL.  
+Está organizado en dos ramas principales con diferentes estrategias de almacenamiento de archivos:
 
-First, run the development server:
+## Ramas del repositorio
+
+### `main`
+- **Almacenamiento remoto**: utiliza un servicio externo (por ejemplo, Cloudinary) para alojar documentos e imágenes.
+- **Configuración**: requiere variables de entorno para las credenciales del servicio remoto.
+
+### `almacenamiento-local`
+- **Almacenamiento local**: guarda los archivos directamente en el servidor dentro de la carpeta `public/Itsva`.
+- **Configuración**: no requiere servicios externos; solo asegurar permisos de escritura en `public/Itsva`.
+
+> **Nota**: Todos los desarrollos y despliegues que involucren almacenamiento local deben realizarse desde la rama `almacenamiento-local`.
+
+---
+
+## Pasos iniciales
+
+### 1. Clonar el repositorio
 
 ```bash
+git clone https://github.com/LanCodeD/itsva_convenios.git
+cd itsva_convenios
+
+### 2. Cambiar a la rama de almacenamiento local
+## Si la rama ya existe localmente:
+
+git checkout almacenamiento-local
+
+## Si la rama no está aún creada en tu máquina:
+
+git checkout -t origin/almacenamiento-local
+
+## (Este comando crea una rama local y la vincula con la remota almacenamiento-local.)
+
+## Si hubo nuevos cambios en remoto, se puede traer todas las referencias remotas con:
+
+git fetch origin
+
+## (No es necesario si es el primer clone).
+
+### 3. Instalar dependencias
+
+npm install
+
+## (Necesario después del primer clone.)
+
+### 4. Configurar variables de entorno
+
+DATABASE_NAME=
+DATABASE_HOST=
+DATABASE_USER=
+DATABASE_PASSWORD=
+
+NEXTAUTH_URL=
+NEXTAUTH_SECRET=
+
+### 5. Ejecutar en modo desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 6. Generar build de producción (opcional)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+npm run build
+npm start
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## (Esto es para optimizar y correr en modo producción.)

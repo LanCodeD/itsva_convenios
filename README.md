@@ -24,8 +24,10 @@ Está organizado en dos ramas principales con diferentes estrategias de almacena
 ```bash
 git clone https://github.com/LanCodeD/itsva_convenios.git
 cd itsva_convenios
-
+```
 ### 2. Cambiar a la rama de almacenamiento local
+
+```bash
 ## Si la rama ya existe localmente:
 
 git checkout almacenamiento-local
@@ -41,15 +43,19 @@ git checkout -t origin/almacenamiento-local
 git fetch origin
 
 ## (No es necesario si es el primer clone).
+```
 
 ### 3. Instalar dependencias
 
+```bash
 npm install
 
 ## (Necesario después del primer clone.)
+```
 
 ### 4. Configurar variables de entorno
 
+```bash
 DATABASE_NAME=
 DATABASE_HOST=
 DATABASE_USER=
@@ -58,12 +64,17 @@ DATABASE_PASSWORD=
 NEXTAUTH_URL=
 NEXTAUTH_SECRET=
 
+```
 ### 5. Ejecutar en modo desarrollo
-npm run dev
 
+```bash
+npm run dev
+```
 ### 6. Generar build de producción (opcional)
 
+```bash
 npm run build
 npm start
 
 ## (Esto es para optimizar y correr en modo producción.)
+```

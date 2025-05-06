@@ -6,7 +6,8 @@ import { connectDB } from "@/libs/database";
 import { authOptions } from "@/libs/authOptions";
 import { getServerSession } from "next-auth";
 
-export const config = { api: { bodyParser: false } };
+// 0) Indicamos que esto corre en Node.js
+export const runtime = 'nodejs';
 
 export async function PUT(
   request: Request,

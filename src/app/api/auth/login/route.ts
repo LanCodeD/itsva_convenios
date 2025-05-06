@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { connectDB } from '@/libs/database'; // Asegúrate de que esta función está definida correctamente para conectar con tu base de datos
 
-export async function login(request: Request) {
+export async function POST(request: Request) {
     const { correo, contraseña } = await request.json();
     const connection = await connectDB();
   

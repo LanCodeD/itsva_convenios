@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 
-export const config = { api: { bodyParser: false } };
+// 0) Indicamos que esto corre en Node.js
+export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
   // 1) Parse multipart con la Web API

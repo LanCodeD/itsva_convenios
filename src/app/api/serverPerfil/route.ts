@@ -2,10 +2,11 @@
 import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
-import { v4 as uuid } from "uuid";
+// Si no lo usas para darle nombre único al archivo, puedes eliminar este import:
+// import { v4 as uuid } from "uuid";
 
-// 1) Desactivar el bodyParser de Next.js
-export const config = { api: { bodyParser: false } };
+// 1) Indicamos que esto corre en Node.js
+export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
   // 2) parsear multipart/form-data

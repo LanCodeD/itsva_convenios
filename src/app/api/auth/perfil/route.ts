@@ -40,11 +40,8 @@ export async function GET(request: Request) {
   }
 }
 
-export const config = {
-  api: {
-    bodyParser: false, // Necesario para formData
-  },
-};
+// 0) Indicamos que esto corre en Node.js
+export const runtime = 'nodejs';
 
 export async function PUT(request: Request) {
   const connection = await connectDB();

@@ -37,7 +37,7 @@ function DescargaConvenio() {
   if (error) {
     return <div>{error}</div>;
   }
-
+//forma correcta por eslint &quot; => ""
   return (
     <div className="container mx-auto px-4 items-center bg-gray-50">
       <h2 className="text-2xl font-bold text-center mb-6 text-gray-900">
@@ -72,12 +72,12 @@ function DescargaConvenio() {
       </table>
       <p className="mt-4 text-center text-gray-600 font-semibold">
         Renombra el archivo como -
-        <strong>"Matrícula/Clave_Nombre_Apellido"</strong> - Ejemplo:
-        <strong> "22070000_Raul_Ku"</strong>
+        <strong>&quot;Matrícula/Clave_Nombre_Apellido&quot;</strong> - Ejemplo:
+        <strong> &quot;22070000_Raul_Ku&quot;</strong>
         <br />
         En caso de <strong>NO</strong> ser estudiante, renombrar el archivo como -
-        <strong>"Nombre_Apellido"</strong> - Ejemplo:
-        <strong>"Raul_Ku"</strong>
+        <strong>&quot;Nombre_Apellido&quot;</strong> - Ejemplo:
+        <strong>&quot;Raul_Ku&quot;</strong>
       </p>
     </div>
   );

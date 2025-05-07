@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import SolicitudModal from "./SolicitudModal"; // Importamos el componente Modal
+import Image from "next/image";
 
 export interface Solicitud {
   id_solicitudes: number;
@@ -108,20 +109,20 @@ const ConveniosSolicitados = () => {
             >
               <p className="text-lg text-gray-900">
                 <strong className="font-semibold text-textHeader">
-                  Fecha de Creación: 
+                  Fecha de Creación:
                 </strong>
-                 {formatDatCre(solicitud.fecha_creacion)}
+                {formatDatCre(solicitud.fecha_creacion)}
               </p>
               <p className="text-lg text-gray-900">
                 <strong className="font-semibold text-textHeader">
                   Fecha de Finalización:
                 </strong>
-                { solicitud.fecha_finalizacion ? (
-                  formatDate( solicitud.fecha_finalizacion)
+                {solicitud.fecha_finalizacion ? (
+                  formatDate(solicitud.fecha_finalizacion)
                 ) : (
-                   <span className="text-red-600">
+                  <span className="text-red-600">
                     Aún no se ha finalizado la Solicitud
-                   </span>
+                  </span>
                 )}
               </p>
 
@@ -130,7 +131,6 @@ const ConveniosSolicitados = () => {
                 <p className="text-green-600 font-semibold mt-2">
                   El documento escaneado será remitido a su correo electrónico.
                 </p>
-                
               )}
 
               <button
@@ -145,11 +145,13 @@ const ConveniosSolicitados = () => {
       </div>
 
       {/* Sección para la imagen estática */}
-      <div className="md:w-1/2 flex justify-center items-center  mt-5">
-        <img
+      <div className="md:w-1/2 flex justify-center items-center mt-5 relative w-full h-screen rounded-xl max-h-[75vh]">
+        <Image
           src="/resource/image/formu6.png"
           alt="Imagen De Historial"
-          className="w-full h-auto rounded-xl max-h-[75vh] object-contain "
+          fill
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="object-contain rounded-xl"
         />
       </div>
 

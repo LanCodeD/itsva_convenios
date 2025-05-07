@@ -86,7 +86,7 @@ export default function ValidationStatus({
       // Si es una solicitud desde el historial, solo carga los datos
       fetchValidationStatus(); // Llama siempre para cargar los datos cuando no es nueva solicitud
     }
-  }, [isNewRequest, isRecoveryRequest]);
+  }, [isNewRequest, isRecoveryRequest, id_solicitud]);
 
   // Funciones auxiliares para manejo de archivos
   const getFileName = (url: string) => {

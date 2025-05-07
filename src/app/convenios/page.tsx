@@ -2,7 +2,7 @@
 import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
 import CreateSolicitudForm from "./estructura";
-import PageWrapper from "../../components/page-wrapper";
+import Image from "next/image";
 import DescargaConvenio from "./descarga_c";
 import SubirConvenioForm from "./subir_convenio";
 import ProtocoloFirmas from "./protocolof";
@@ -134,13 +134,17 @@ const PageComponent: React.FC = () => {
       {!showForm && (
         <div className="max-w-full w-full mx-auto bg-white flex flex-col items-center space-y-4 rounded-lg h-full">
           {/* Primer botón con su imagen al lado */}
-          <div className="flex items-center mt-4 pb-4 w-full h-full">
-            <img
-              src="/resource/image/formu7.png"
-              alt="Imagen de agregar"
-              className="max-w-xl w-full h-full max-h-[40vh] object-contain rounded-lg"
-            />
-
+          <div className="flex items-center mt-4 pb-4 w-full h-full ">
+            <div className="flex items-center mt-4 pb-4 w-full h-screen relative max-h-[50vh] ">
+              <Image
+                src="/resource/image/formu7.png"
+                alt="Imagen de agregar"
+                fill
+                priority
+                sizes="(min-width: 768px) 60vw, 100vw"
+                className="object-contain rounded-lg"
+              />
+            </div>
             <div className="bg-gray-50 rounded-lg shadow-lg text-center items-center justify-center w-full h-full mr-10 ">
               <div className="bg-sky-900 p-4 rounded-t-lg">
                 <h2 className="text-3xl font-bold text-textGrispalido text-center">
@@ -188,18 +192,22 @@ const PageComponent: React.FC = () => {
                 </p>
               </div>
             </div>
-            <img
-              src="/resource/image/formu2.png"
-              alt="Imagen de historial"
-              className="max-w-xl w-full h-full max-h-[40vh] object-contain rounded-lg"
-            />
+            <div className="flex items-center pb-4 w-full h-screen relative max-h-[50vh]">
+              <Image
+                src="/resource/image/formu2.png"
+                alt="Imagen de historial"
+                fill
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="object-contain rounded-lg"
+              />
+            </div>
           </div>
         </div>
       )}
 
       {showForm && (
         <>
-           <nav className="flex justify-around space-x-2 bg-guinda p-4 rounded-t-lg">
+          <nav className="flex justify-around space-x-2 bg-guinda p-4 rounded-t-lg">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -265,33 +273,35 @@ const SolicitarForm = ({
   estadoSecciones: any;
 }) => (
   <div className="bg-gray-50  rounded-lg shadow-lg max-w-full mx-auto ">
-  {/* Encabezado con fondo de color diferente */}
-  <div className="bg-colorHeader p-5 rounded-t-lg">
-    <h2 className="text-3xl font-bold text-textGrispalido text-center">
-      Solicitar Convenio
-    </h2>
-  </div>
-
-  <div className="flex flex-col md:flex-row p-4 bg-white rounded-b-lg">
-    {/* Formulario a la izquierda */}
-    <div className="w-full h-auto md:w-1/2 p-4">
-      <CreateSolicitudForm
-        estadoSecciones={estadoSecciones} // Estado dinámico
-        onSubmit={onFormSubmit}
-        formData={formData} // Datos cargados
-      />
+    {/* Encabezado con fondo de color diferente */}
+    <div className="bg-colorHeader p-5 rounded-t-lg">
+      <h2 className="text-3xl font-bold text-textGrispalido text-center">
+        Solicitar Convenio
+      </h2>
     </div>
 
-    {/* Imagen decorativa a la derecha */}
-    <div className="hidden md:flex md:w-1/2 items-center justify-center">
-      <img
-        src="/resource/image/formu1.png" // Cambia esta ruta a la de tu imagen
-        alt="Imagen decorativa"
-        className="max-w-xl h-auto rounded-lg justify-center"
-      />
+    <div className="flex flex-col md:flex-row p-4 bg-white rounded-b-lg">
+      {/* Formulario a la izquierda */}
+      <div className="w-full h-auto md:w-1/2 p-4">
+        <CreateSolicitudForm
+          estadoSecciones={estadoSecciones} // Estado dinámico
+          onSubmit={onFormSubmit}
+          formData={formData} // Datos cargados
+        />
+      </div>
+
+      {/* Imagen decorativa a la derecha */}
+      <div className="hidden md:flex md:w-1/2 items-center justify-center relative max-w-xl h-auto">
+        <Image
+          src="/resource/image/formu1.png"
+          alt="Imagen decorativa"
+          fill
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="rounded-lg object-contain"
+        />
+      </div>
     </div>
   </div>
-</div>
 );
 
 const DescargarCSection = ({
@@ -305,7 +315,7 @@ const DescargarCSection = ({
   isRecoveryRequest: boolean;
   estadoSecciones: any;
 }) => (
-<div className="bg-gray-50 rounded-lg shadow-lg max-w-full mx-auto">
+  <div className="bg-gray-50 rounded-lg shadow-lg max-w-full mx-auto">
     {/* Encabezado */}
     <div className="bg-colorHeader p-5 rounded-t-lg">
       <h2 className="text-3xl font-semibold text-textGrispalido text-center">
@@ -320,7 +330,7 @@ const DescargarCSection = ({
 
     <div className="flex flex-col md:flex-row p-6 bg-white rounded-b-lg">
       {/* Formulario de subida */}
-      <div className="w-full md:w-1/2">
+      <div className="mt-14 w-full md:w-1/2">
         <SubirConvenioForm
           isNewRequest={isNewRequest}
           isRecoveryRequest={isRecoveryRequest}
@@ -330,11 +340,13 @@ const DescargarCSection = ({
       </div>
 
       {/* Imagen decorativa */}
-      <div className="hidden md:flex md:w-1/2 items-center justify-center">
-        <img
-          src="/resource/image/formu5.png" // Cambia esta ruta a la de tu imagen
+      <div className="hidden md:flex md:w-1/2 items-center justify-center relative max-w-md h-screen max-h-[50vh]  ">
+        <Image
+          src="/resource/image/formu5.png"
           alt="Imagen decorativa"
-          className="max-w-xs h-auto rounded-lg "
+          fill
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="rounded-lg object-contain"
         />
       </div>
     </div>
@@ -360,16 +372,18 @@ const PfirmaSection = ({
     </div>
 
     <div className="flex flex-col md:flex-row p-8 bg-white rounded-b-lg">
-      <div className="hidden md:flex md:w-1/2 items-center justify-center">
-        <img
-          src="/resource/image/formu3.png" // Cambia esta ruta a la de tu imagen
+      <div className="hidden md:flex md:w-1/2 items-center justify-center relative max-w-lg h-screen max-h-[60vh] ">
+        <Image
+          src="/resource/image/formu3.png"
           alt="Imagen decorativa"
-          className="max-w-xs h-auto rounded-lg justify-center"
+          fill
+          sizes="(min-width: 768px) 25vw, 100vw"
+          className="rounded-lg object-contain"
         />
       </div>
 
       {/* Formulario a la izquierda */}
-      <div className="w-full h-auto md:w-1/2 p-8">
+      <div className="mt-6 w-full h-auto md:w-1/2 p-8">
         <ProtocoloFirmas
           isNewRequest={isNewRequest}
           isRecoveryRequest={isRecoveryRequest}
@@ -377,7 +391,6 @@ const PfirmaSection = ({
           onSubmit={onFormSubmit}
         />
       </div>
-
     </div>
   </div>
 );

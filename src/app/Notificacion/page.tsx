@@ -4,6 +4,8 @@ import axios from "axios";
 import NotificacionModal from "./NotificationModal"; // Importamos el modal
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
+
 
 export interface Notification {
   id_notificacion: number;
@@ -68,7 +70,9 @@ const NotificationsComponent = () => {
   return (
     <div className="max-w-full w-full mx-auto bg-white shadow-lg rounded-lg p-6 mt-5 flex flex-col md:flex-row">
       <div className="md:w-1/2 md:pr-2 overflow-y-auto max-h-[80vh]">
-        <h1 className="text-3xl font-bold mb-6 text-center text-textHeader">Notificaciones</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center text-textHeader">
+          Notificaciones
+        </h1>
         {notifications.length > 0 ? (
           <ul className="space-y-4">
             {notifications.map((notification) => (
@@ -115,11 +119,13 @@ const NotificationsComponent = () => {
           <p className="text-center text-gray-500">No hay notificaciones.</p>
         )}
       </div>
-      <div className="md:w-1/2 flex justify-center items-center  mt-5">
-        <img
+      <div className="md:w-1/2 flex justify-center items-center mt-5 relative w-full h-screen rounded-xl max-h-[75vh] ">
+        <Image
           src="/resource/image/formu8.png"
           alt="Imagen De Historial"
-          className="w-full h-auto rounded-xl max-h-[75vh] object-contain "
+          fill
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="object-contain rounded-xl"
         />
       </div>
 

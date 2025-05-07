@@ -9,6 +9,7 @@ import ValidationStatus from "../../Validacion";
 import { useSession } from "next-auth/react"; // Si estás usando NextAuth para la autenticación
 import { Icon } from "@iconify/react";
 import DescargaConvenio from "../../descarga_c";
+import Image from "next/image";
 
 const DetalleSolicitud: React.FC = () => {
   const [estadoSecciones, setEstadoSecciones] = useState({
@@ -214,11 +215,13 @@ const SolicitarForm = ({
       </div>
 
       {/* Imagen decorativa a la derecha */}
-      <div className="hidden md:flex md:w-1/2 items-center justify-center">
-        <img
-          src="/resource/image/formu1.png" // Cambia esta ruta a la de tu imagen
+      <div className="hidden md:flex md:w-1/2 items-center justify-center relative max-w-xl h-auto">
+        <Image
+          src="/resource/image/formu1.png"
           alt="Imagen decorativa"
-          className="max-w-xl h-auto rounded-lg justify-center"
+          fill
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="rounded-lg object-contain"
         />
       </div>
     </div>
@@ -261,11 +264,13 @@ const DescargarCSection = ({
       </div>
 
       {/* Imagen decorativa */}
-      <div className="hidden md:flex md:w-1/2 items-center justify-center">
-        <img
-          src="/resource/image/formu5.png" // Cambia esta ruta a la de tu imagen
+      <div className="hidden md:flex md:w-1/2 items-center justify-center relative max-w-md h-screen max-h-[50vh]  ">
+        <Image
+          src="/resource/image/formu5.png"
           alt="Imagen decorativa"
-          className="max-w-xs h-auto rounded-lg "
+          fill
+          sizes="(min-width: 768px) 50vw, 100vw"
+          className="rounded-lg object-contain"
         />
       </div>
     </div>
@@ -291,11 +296,13 @@ const PfirmaSection = ({
     </div>
 
     <div className="flex flex-col md:flex-row p-8 bg-white rounded-b-lg">
-      <div className="hidden md:flex md:w-1/2 items-center justify-center">
-        <img
-          src="/resource/image/formu3.png" // Cambia esta ruta a la de tu imagen
+      <div className="hidden md:flex md:w-1/2 items-center justify-center relative max-w-lg h-screen max-h-[60vh] ">
+        <Image
+          src="/resource/image/formu3.png"
           alt="Imagen decorativa"
-          className="max-w-xs h-auto rounded-lg justify-center"
+          fill
+          sizes="(min-width: 768px) 25vw, 100vw"
+          className="rounded-lg object-contain"
         />
       </div>
 

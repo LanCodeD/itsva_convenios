@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 import useScroll from "@/hooks/use-scroll";
@@ -10,6 +10,7 @@ import { Icon } from "@iconify/react";
 import axios from "axios";
 import NotificationIcon from "./NotificionIcon";
 import useSWR from "swr";
+import Image from "next/image";
 
 const Header = () => {
   const scrolled = useScroll(40);
@@ -40,13 +41,14 @@ const Header = () => {
 
   return (
     <div
-    className={cn(
-      `sticky inset-x-0 top-0 z-30 w-full transition-all duration-500 ease-in-out `, // Duración más larga para suavizar la transición
-      {
-        "bg-colorHeader bg-opacity-100 shadow-md": !scrolled, 
-        "bg-colorHeader bg-opacity-95 backdrop-opacity-30 backdrop-blur-lg shadow-sm": scrolled, // Transición más suave de opacidad
-      }
-    )}    
+      className={cn(
+        `sticky inset-x-0 top-0 z-30 w-full transition-all duration-500 ease-in-out `, // Duración más larga para suavizar la transición
+        {
+          "bg-colorHeader bg-opacity-100 shadow-md": !scrolled,
+          "bg-colorHeader bg-opacity-95 backdrop-opacity-30 backdrop-blur-lg shadow-sm":
+            scrolled, // Transición más suave de opacidad
+        }
+      )}
     >
       <div className="flex h-[70px] items-center justify-between w-full px-10">
         <div className="flex items-center space-x-4">
@@ -55,19 +57,23 @@ const Header = () => {
             target="_blank"
             className="flex flex-row space-x-3 items-center justify-center md:hidden"
           >
-            <div className="h-7 w-7 bg-colorHeader rounded-lg flex items-center justify-center">
-              <img
+            <div className="h-7 w-7 bg-colorHeader rounded-lg flex items-center justify-center relative">
+              <Image
                 src="/resource/image/B_ITSVA.png"
                 alt="Logo"
-                className="h-full w-full object-contain"
+                fill
+                sizes="30px"
+                className="object-contain"
               />
             </div>
-            <div className="flex items-center space-x-2 justify-center">
-             
-              <img
-                src="/resource/image/B_ITSVA2.png" // Cambia esta ruta a la de tu segunda imagen
+
+            <div className="flex items-center space-x-2 justify-center relative h-24 w-24 max-h-10 max-w-full ">
+              <Image
+                src="/resource/image/B_ITSVA2.png"
                 alt="Logo Itsva Letras"
-                className="h-auto w-auto max-h-5 max-w-full object-contain"
+                fill
+                sizes="100px"
+                className="object-contain"
               />
             </div>
           </Link>
@@ -84,11 +90,13 @@ const Header = () => {
             />
 
             {/* Imagen de perfil */}
-            <div className="h-14 w-14 rounded-full bg-gray-200 overflow-hidden">
-              <img
+            <div className="h-14 w-14 rounded-full bg-gray-200 overflow-hidden relative">
+              <Image
                 src={fotoPerfil || "/resource/image/default-profile.png"}
-                alt="Profile"
-                className="h-full w-full object-cover"
+                alt="Perfil"
+                fill
+                sizes="56px"
+                className="object-cover"
               />
             </div>
 

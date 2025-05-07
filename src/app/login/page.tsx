@@ -4,6 +4,7 @@ import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import Image from "next/image";
 
 function Loginpage() {
   const [error, setError] = useState("");
@@ -26,8 +27,7 @@ function Loginpage() {
       // Esto limpia la URL manteniéndote en /login, sin recargar
       router.replace("/login", undefined);
     }
-  }, []);
-
+  }, [router]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -79,14 +79,20 @@ function Loginpage() {
         className="w-full bg-cover bg-center flex items-center px-6 py-1"
         style={{ backgroundImage: "url('/resource/image/azul4.webp')" }}
       >
-        <img
+        <Image
           src="/resource/image/LOGO_TECNM_BLANCO.png"
           alt="Logo"
+          width={64}
+          height={64}
           className="h-16 w-auto mr-2 object-contain"
+          
         />
-        <img
+
+        <Image
           src="/resource/image/TECNM_1.png"
           alt="Logo"
+          width={64}
+          height={64}
           className="h-16 w-auto mr-2 object-contain"
         />
       </header>

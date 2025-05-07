@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { SIDENAV_ITEMS, ADMIN_SIDENAV_ITEMS } from "@/constans";
 import { SideNavItem } from "@/types";
 import { Icon } from "@iconify/react";
+import Image from "next/image";
 
 const SideNav = ({
   role,
@@ -36,22 +37,26 @@ const SideNav = ({
           } h-[70px] w-full`}
         >
           {/* Imagen primaria */}
-          <div className="h-10 w-10 bg-colorHeader flex items-center justify-center">
-            <img
+          <div className="h-10 w-10 bg-colorHeader flex items-center justify-center relative">
+            <Image
               src="/resource/image/B_ITSVA.png"
               alt="Logo Itsva"
-              className="h-full w-full  object-contain"
+              fill
+              sizes="40px"
+              className="object-contain"
             />
           </div>
 
           {/* Imagen secundaria y texto, solo cuando el SideNav está expandido */}
           {!isCollapsed && (
-            <div className="flex items-center space-x-2 justify-center">
-             
-              <img
-                src="/resource/image/B_ITSVA2.png" // Cambia esta ruta a la de tu segunda imagen
+            <div className="flex items-center space-x-2 justify-center relative h-36 w-36 max-h-10 max-w-full">
+              <Image
+                src="/resource/image/B_ITSVA2.png"
                 alt="Logo Itsva Letras"
-                className="h-auto w-auto max-h-10 max-w-full object-contain"
+                fill
+                sizes="150px"
+                className="object-contain"
+                priority
               />
             </div>
           )}
@@ -116,9 +121,9 @@ const MenuItem = ({
             onClick={toggleSubMenu}
             className={`flex items-center p-2 rounded-lg w-full justify-between font-semibold ${
               isActive
-              ? "bg-colorDorado text-[rgb(27,57,106)]"
-              : "hover:bg-colorDorado"
-          }`}
+                ? "bg-colorDorado text-[rgb(27,57,106)]"
+                : "hover:bg-colorDorado"
+            }`}
           >
             {/* Ajusta el tamaño del icono para ambos estados (colapsado/expandido) */}
             <div
@@ -166,9 +171,7 @@ const MenuItem = ({
         <Link
           href={item.path}
           className={`flex items-center p-3 rounded-lg ${
-            isActive
-              ? "bg-colorDorado text-textHeader"
-              : "hover:bg-colorDorado"
+            isActive ? "bg-colorDorado text-textHeader" : "hover:bg-colorDorado"
           }`}
           onClick={item.onClick ? handleClick : undefined}
         >

@@ -1,5 +1,6 @@
 import axios from "axios";
 import useSWR from "swr";
+import Image from "next/image";
 
 // Tipo para el usuario
 interface Usuario {
@@ -23,14 +24,13 @@ const RankingUsuarios: React.FC = () => {
   const topUsuarios = data.slice(0, 6);
 
   return (
-    <div className="bg-white shadow-lg rounded-lg size-full relative">
+    <div className="bg-white shadow-lg rounded-sm size-full relative">
       <div className="relative bg-[#556B2F] rounded-t-lg h-20 text-center">
         <h2 className="p-5 text-2xl font-semibold mb-1 text-white">
           Usuarios Activos
         </h2>
       </div>
       <div className="p-6 space-y-6 ">
-
         {/* Lista de los usuarios más activos */}
         <div className="space-y-4 ">
           {topUsuarios.map((usuario: Usuario, index: number) => (
@@ -39,13 +39,20 @@ const RankingUsuarios: React.FC = () => {
               className="flex items-center space-x-4 bg-gray-50 p-4 rounded-lg shadow-md justify-between"
             >
               {/* Foto de perfil del usuario */}
-              <img
-                src={
-                  usuario?.foto_perfil || "/resource/image/default-profile.png"
-                }
-                alt={`${usuario.nombre} ${usuario.apellido}`}
-                className="w-12 h-12 rounded-full object-cover"
-              />
+              <div className="relative flex">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden">
+                  <Image
+                    src={
+                      usuario?.foto_perfil ||
+                      "/resource/image/default-profile.png"
+                    }
+                    alt={`${usuario.nombre} ${usuario.apellido}`}
+                    fill
+                    sizes="500px"
+                    className="object-cover rounded-full"
+                  />
+                </div>
+              </div>
 
               {/* Detalles del usuario */}
               <div className="flex-grow">

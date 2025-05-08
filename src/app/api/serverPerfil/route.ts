@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   const base = baseRaw.trim().replace(/\s+/g, "_");
 
   // 5) carpeta de destino
-  const uploadDir = path.join(process.cwd(), "public", "Itsva", "Perfil");
+  const uploadDir = path.join(process.cwd(), "uploads", "Itsva", "Perfil");
   await fs.mkdir(uploadDir, { recursive: true });
 
   // 6) evitar colisiones (añadir _1, _2…)
@@ -53,6 +53,6 @@ export async function POST(request: Request) {
   await fs.writeFile(path.join(uploadDir, fileName), buffer);
 
   // 8) devolver URL pública
-  const publicUrl = `/Itsva/Perfil/${fileName}`;
+  const publicUrl = `/api/uploads/perfil/${fileName}`; // nuevo
   return NextResponse.json({ url: publicUrl }, { status: 201 });
 }

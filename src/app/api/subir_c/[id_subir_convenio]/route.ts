@@ -49,22 +49,29 @@ export async function PUT(
     if (convenio_subir === "") {
       const oldUrl: string = subirConvenio.convenio_subir;
       if (oldUrl) {
-        // construye ruta absoluta
-        const filePath = path.join(
-          process.cwd(),
-          "public",
-          oldUrl.replace(/^\//, "")
-        );
-        try {
-          await fs.unlink(filePath);
-        } catch (err: any) {
-          // ignora si ya no existe
-          if (err.code !== "ENOENT") {
-            console.error("Error borrando fichero viejo:", filePath, err);
+        // Extrae solo el nombre del archivo desde la URL
+        const filename = oldUrl.split("/").pop(); // "uuid.pdf"
+    
+        if (filename) {
+          const filePath = path.join(
+            process.cwd(),
+            "uploads",
+            "Itsva",
+            "Convenios",
+            filename
+          );
+    
+          try {
+            await fs.unlink(filePath);
+          } catch (err: any) {
+            if (err.code !== "ENOENT") {
+              console.error("Error borrando fichero viejo:", filePath, err);
+            }
           }
         }
       }
     }
+    
 
     // 5) Recuperar datos para actualizar estado_secciones
     const [solicitudResult]: [any[], any] = await connection.execute(

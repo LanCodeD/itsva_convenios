@@ -6,9 +6,6 @@ import { authOptions } from "@/libs/authOptions";
 import fs from "fs/promises";
 import path from "path";
 
-
-
-
 export async function GET(request: Request) {
   const connection = await connectDB();
   try {
@@ -23,25 +20,31 @@ export async function GET(request: Request) {
     const [rows]: any[] = await connection.execute(
       `SELECT perfil.* FROM usuario 
        JOIN perfil ON usuario.perfil_id = perfil.id_perfil 
-       WHERE usuario.id_usuario = ?`, 
+       WHERE usuario.id_usuario = ?`,
       [id_usuario]
     );
 
     if (rows.length === 0) {
-      return NextResponse.json({ message: "Perfil no encontrado" }, { status: 404 });
+      return NextResponse.json(
+        { message: "Perfil no encontrado" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({ perfil: rows[0] }, { status: 200 });
   } catch (error) {
     console.error("Error al obtener el perfil:", error);
-    return NextResponse.json({ message: "Error al obtener el perfil" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Error al obtener el perfil" },
+      { status: 500 }
+    );
   } finally {
     connection.release();
   }
 }
 
 // 0) Indicamos que esto corre en Node.js
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 export async function PUT(request: Request) {
   const connection = await connectDB();
@@ -55,11 +58,13 @@ export async function PUT(request: Request) {
 
     // 2) Parsear formData
     const formData = await request.formData();
-    const informacion      = formData.get("informacion")?.toString()      || null;
-    const ciudad           = formData.get("ciudad")?.toString()           || null;
-    const clave_o_matricula= formData.get("clave_o_matricula")?.toString()|| null;
-    const numero_telefonico= formData.get("numero_telefonico")?.toString()|| null;
-    const nuevaFotoUrl     = formData.get("foto_perfil")?.toString()      || null;
+    const informacion = formData.get("informacion")?.toString() || null;
+    const ciudad = formData.get("ciudad")?.toString() || null;
+    const clave_o_matricula =
+      formData.get("clave_o_matricula")?.toString() || null;
+    const numero_telefonico =
+      formData.get("numero_telefonico")?.toString() || null;
+    const nuevaFotoUrl = formData.get("foto_perfil")?.toString() || null;
 
     // 3) Si vienen nuevos datos de foto, borramos la antigua
     if (nuevaFotoUrl) {
@@ -74,15 +79,22 @@ export async function PUT(request: Request) {
         [idUsuario]
       );
       const viejaFotoUrl = rows[0]?.foto_perfil as string | null;
-      if (viejaFotoUrl && viejaFotoUrl !== nuevaFotoUrl) {
-        const filePath = path.join(
-          process.cwd(),
-          "public",
-          viejaFotoUrl.replace(/^\//, "")
-        );
-        await fs.unlink(filePath).catch((e: any) => {
-          if (e.code !== "ENOENT") console.error("Error borrando foto vieja:", e);
-        });
+
+      if (viejaFotoUrl) {
+        const filename = viejaFotoUrl.split("/").pop(); // extraer "uuid.jpg"
+        if (filename) {
+          const filePath = path.join(
+            process.cwd(),
+            "uploads",
+            "Itsva",
+            "Perfil",
+            filename
+          );
+          await fs.unlink(filePath).catch((e: any) => {
+            if (e.code !== "ENOENT")
+              console.error("Error borrando foto vieja:", e);
+          });
+        }
       }
     }
 

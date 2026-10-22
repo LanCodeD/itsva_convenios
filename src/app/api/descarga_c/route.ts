@@ -26,3 +26,5 @@ export async function GET(request: Request) {
     connection.release(); //Devuleve la conexión al databese "pool"
   }
 }
+
+export const dynamic = "force-dynamic";

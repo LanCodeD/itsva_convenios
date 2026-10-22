@@ -70,3 +70,5 @@ export async function GET(request: Request) {
     connection.release();
   }
 }
+
+export const dynamic = "force-dynamic";

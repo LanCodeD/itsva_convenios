@@ -135,3 +135,5 @@ export async function PUT(request: Request) {
     connection.release();
   }
 }
+
+export const dynamic = "force-dynamic";

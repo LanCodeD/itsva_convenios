@@ -1,0 +1,14 @@
+name: convenios
+
+services:
+  web:
+    build: .
+    container_name: convenios
+    ports:
+      - "9001:3000"
+    env_file: .env
+    volumes:
+      - /srv/datos/convenios/uploads:/app/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
